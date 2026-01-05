@@ -11,13 +11,36 @@ resize();
 window.addEventListener("resize", resize);
 
 // Zoom & pan
+let zoomTransform = d3.zoomIdentity;
+let parallaxX = 0;
+let parallaxY = 0;
+
+function updateTransform() {
+  const combined = zoomTransform.translate(parallaxX, parallaxY);
+  g.attr("transform", combined);
+}
+
 const zoom = d3.zoom()
   .scaleExtent([0.3, 5])
   .on("zoom", (event) => {
-    g.attr("transform", event.transform);
+    zoomTransform = event.transform;
+    updateTransform();
   });
 
 svg.call(zoom);
+
+// Subtiele Dark-parallax
+svg.on("mousemove", (event) => {
+  const rect = svg.node().getBoundingClientRect();
+
+  const mouseX = (event.clientX - rect.width / 2) / rect.width;
+  const mouseY = (event.clientY - rect.height / 2) / rect.height;
+
+  parallaxX = mouseX * 12;
+  parallaxY = mouseY * 12;
+
+  updateTransform();
+});
 
 // Subtiele parallax (Dark-style)
 let mouseX = 0;
