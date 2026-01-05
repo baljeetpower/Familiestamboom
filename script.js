@@ -51,11 +51,11 @@ d3.json("data.json").then(function (data) {
     });
 
   person.append("image")
-    .attr("href", function (d) { return d.photo; })
-    .attr("width", 120)
-    .attr("height", 120)
-    .attr("x", -60)
-    .attr("y", -60);
+  .attr("xlink:href", d => d.photo)
+  .attr("width", 120)
+  .attr("height", 120)
+  .attr("x", -60)
+  .attr("y", -60);
 
   person.append("text")
     .attr("y", 90)
