@@ -45,7 +45,7 @@ g.selectAll(".link")
     .enter()
     .append("g")
     .attr("class", "person")
-    .attr("transform", "translate(0, 0)");
+    .attr("transform", d => `translate(${d.x}, ${d.y})`);
 
   person.append("image")
     .attr("href", d => d.photo)
