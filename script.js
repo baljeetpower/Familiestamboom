@@ -11,7 +11,7 @@ function resize() {
 resize();
 window.addEventListener("resize", resize);
 
-// ===== SVG GLOW FILTER (voor lijnen) =====
+// ===== SVG GLOW FILTER =====
 const defs = svg.append("defs");
 
 const glow = defs.append("filter")
@@ -40,21 +40,24 @@ d3.json("data.json").then(data => {
   const map = {};
   data.people.forEach(p => map[p.id] = p);
 
- // Lijnen
-g.selectAll(".link")
-  .data(data.links || [])
-  .enter()
-  .append("line")
-  .attr("class", "link")
-  .attr("x1", d =>
-    map[d.source].x + (map[d.source].x < map[d.target].x ? 140 : -140)
-  )
-  .attr("y1", d => map[d.source].y)
-  .attr("x2", d =>
-    map[d.target].x + (map[d.source].x < map[d.target].x ? -140 : 140)
-  )
-  .attr("y2", d => map[d.target].y)
-  .attr("filter", "url(#glow)");
+  /* === LIJNEN (240x360 foto) ===
+     horizontale offset: 140
+     verticale offset:   180
+  */
+  g.selectAll(".link")
+    .data(data.links || [])
+    .enter()
+    .append("line")
+    .attr("class", "link")
+    .attr("x1", d =>
+      map[d.source].x + (map[d.source].x < map[d.target].x ? 140 : -140)
+    )
+    .attr("y1", d => map[d.source].y + 180)
+    .attr("x2", d =>
+      map[d.target].x + (map[d.source].x < map[d.target].x ? -140 : 140)
+    )
+    .attr("y2", d => map[d.target].y + 180)
+    .attr("filter", "url(#glow)");
 
   // Personen
   const person = g.selectAll(".person")
@@ -64,15 +67,17 @@ g.selectAll(".link")
     .attr("class", "person")
     .attr("transform", d => `translate(${d.x}, ${d.y})`);
 
+  // Foto (240x360)
   person.append("image")
     .attr("xlink:href", d => d.photo)
-    .attr("width", 120)
-    .attr("height", 120)
-    .attr("x", -60)
-    .attr("y", -60);
+    .attr("width", 240)
+    .attr("height", 360)
+    .attr("x", -120)
+    .attr("y", -180);
 
+  // Naam
   person.append("text")
-    .attr("y", 90)
+    .attr("y", 210)
     .text(d => d.name);
 
   // Start gecentreerd
@@ -85,22 +90,21 @@ g.selectAll(".link")
   });
 });
 
-// ===== ECHTE DARK-KANTELING (3D CAMERA) =====
+// ===== ECHTE DARK-KANTELING (STABIEL) =====
 scene.addEventListener("mousemove", (e) => {
   const rect = scene.getBoundingClientRect();
 
   const x = (e.clientX - rect.width / 2) / rect.width;
   const y = (e.clientY - rect.height / 2) / rect.height;
 
-  const rotateY = x * 14;    // links/rechts → zijkant komt naar voren
-  const rotateX = -y * 10;   // omhoog/omlaag → boven/onder komt naar voren
+  const rotateY = x * 14;   // links/rechts
+  const rotateX = -y * 10;  // omhoog/omlaag
 
-  scene.style.transform = `
-    rotateX(${rotateX}deg)
-    rotateY(${rotateY}deg)
-  `;
+  scene.style.transform =
+    `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
 });
 
 scene.addEventListener("mouseleave", () => {
-  scene.style.transform = "rotateX(0deg) rotateY(0deg)";
+  scene.style.transform =
+    "perspective(1200px) rotateX(0deg) rotateY(0deg)";
 });
