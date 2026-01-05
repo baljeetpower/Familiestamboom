@@ -18,7 +18,11 @@ d3.json("data.json").then(data => {
     .enter()
     .append("g")
     .attr("class", "person")
-    .attr("transform", d => `translate(${d.x}, ${d.y})`);
+    .attr(
+  "transform",
+  d => `translate(${window.innerWidth / 2}, ${window.innerHeight / 2})`
+);
+
 
   // Foto
   person.append("image")
