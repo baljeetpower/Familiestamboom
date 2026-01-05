@@ -92,9 +92,11 @@ d3.json("data.json").then(data => {
   requestAnimationFrame(() => {
     const r = svg.node().getBoundingClientRect();
     svg.call(
-      zoom.transform,
-      d3.zoomIdentity.translate(r.width / 2, r.height / 2)
-    );
+  zoom.transform,
+  d3.zoomIdentity
+    .translate(r.width / 2, r.height / 2)
+    .scale(0.9)
+);
   });
 });
 
