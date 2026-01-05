@@ -70,4 +70,10 @@ d3.json("data.json").then((data) => {
 
     svg.call(
       zoom.transform,
-      d3.zoomId
+      d3.zoomIdentity
+        .scale(1)
+        .translate(bbox.width / 2, bbox.height / 2)
+    );
+  });
+
+});
