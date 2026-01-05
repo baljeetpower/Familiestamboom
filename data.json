@@ -2,14 +2,14 @@
   "people": [
     {
       "id": "persoon1",
-      "name": "Tim",
+      "name": "DOMINGGUS SIMAELA",
       "photo": "./images/timbesselsen.png",
       "x": -250,
       "y": 0
     },
     {
       "id": "persoon2",
-      "name": "Anna",
+      "name": "ELSINA HETHARIE",
       "photo": "./images/timbesselsen.png",
       "x": 250,
       "y": 0
