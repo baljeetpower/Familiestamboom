@@ -37,8 +37,8 @@ svg.on("mousemove", (event) => {
   const mouseX = (event.clientX - rect.width / 2) / rect.width;
   const mouseY = (event.clientY - rect.height / 2) / rect.height;
 
-  parallaxX = mouseX * 12;
-parallaxY = -mouseY * 8; // ⬅️ omgekeerd + subtieler
+  parallaxX = mouseX * 14;
+parallaxY = -mouseY * 6; // ⬅️ omgekeerd + subtieler
 
   updateTransform();
 });
