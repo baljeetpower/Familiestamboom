@@ -2,7 +2,7 @@
   "people": [
     {
       "id": "persoon1",
-      "name": "Jan Jansen",
+      "name": "Tim Besselsen",
       "photo": "./images/timbesselsen.png",
       "x": -200,
       "y": 0
@@ -10,7 +10,7 @@
     {
       "id": "persoon2",
       "name": "Anna Jansen",
-      "photo": "https://via.placeholder.com/120",
+      "photo": "./images/timbesselsen.png",
       "x": 200,
       "y": 0
     }
