@@ -1,16 +1,16 @@
+// ===== Basis SVG =====
 const svg = d3.select("#canvas");
 const g = svg.append("g");
 
-// Zet SVG expliciet fullscreen
+// Fullscreen SVG
 function resize() {
   svg.attr("width", window.innerWidth);
   svg.attr("height", window.innerHeight);
 }
-
 resize();
 window.addEventListener("resize", resize);
 
-// Zoom & pan
+// ===== Zoom + Parallax (Dark-style) =====
 let zoomTransform = d3.zoomIdentity;
 let parallaxX = 0;
 let parallaxY = 0;
@@ -20,6 +20,7 @@ function updateTransform() {
   g.attr("transform", combined);
 }
 
+// Zoom
 const zoom = d3.zoom()
   .scaleExtent([0.3, 5])
   .on("zoom", (event) => {
@@ -29,39 +30,20 @@ const zoom = d3.zoom()
 
 svg.call(zoom);
 
-// Subtiele Dark-parallax
+// Subtiele parallax op muis
 svg.on("mousemove", (event) => {
   const rect = svg.node().getBoundingClientRect();
 
   const mouseX = (event.clientX - rect.width / 2) / rect.width;
   const mouseY = (event.clientY - rect.height / 2) / rect.height;
 
-  parallaxX = mouseX * 12;
+  parallaxX = mouseX * 12; // pas aan voor sterker/zwakker
   parallaxY = mouseY * 12;
 
   updateTransform();
 });
 
-// Subtiele parallax (Dark-style)
-let mouseX = 0;
-let mouseY = 0;
-
-svg.on("mousemove", (event) => {
-  const rect = svg.node().getBoundingClientRect();
-
-  mouseX = (event.clientX - rect.width / 2) / rect.width;
-  mouseY = (event.clientY - rect.height / 2) / rect.height;
-
-  const parallaxX = mouseX * 10; // max 10px
-  const parallaxY = mouseY * 10;
-
-  g.attr(
-    "transform",
-    `translate(${parallaxX}, ${parallaxY})`
-  );
-});
-
-// Data laden
+// ===== Data laden =====
 d3.json("data.json").then(function (data) {
 
   // ID → persoon map
@@ -75,10 +57,11 @@ d3.json("data.json").then(function (data) {
     .data(data.links || [])
     .enter()
     .append("line")
-    .attr("x1", function (d) { return peopleMap[d.source].x; })
-    .attr("y1", function (d) { return peopleMap[d.source].y; })
-    .attr("x2", function (d) { return peopleMap[d.target].x; })
-    .attr("y2", function (d) { return peopleMap[d.target].y; })
+    .attr("class", "link")
+    .attr("x1", d => peopleMap[d.source].x)
+    .attr("y1", d => peopleMap[d.source].y)
+    .attr("x2", d => peopleMap[d.target].x)
+    .attr("y2", d => peopleMap[d.target].y)
     .attr("stroke", "#444")
     .attr("stroke-width", 1);
 
@@ -88,25 +71,25 @@ d3.json("data.json").then(function (data) {
     .enter()
     .append("g")
     .attr("class", "person")
-    .attr("transform", function (d) {
-      return "translate(" + d.x + "," + d.y + ")";
-    });
+    .attr("transform", d => `translate(${d.x}, ${d.y})`);
 
+  // Foto
   person.append("image")
-  .attr("xlink:href", d => d.photo)
-  .attr("width", 120)
-  .attr("height", 120)
-  .attr("x", -60)
-  .attr("y", -60);
+    .attr("xlink:href", d => d.photo)
+    .attr("width", 120)
+    .attr("height", 120)
+    .attr("x", -60)
+    .attr("y", -60);
 
+  // Naam
   person.append("text")
     .attr("y", 90)
     .attr("text-anchor", "middle")
     .attr("fill", "#e0e0e0")
     .attr("font-size", "14px")
-    .text(function (d) { return d.name; });
+    .text(d => d.name);
 
-  // Start gecentreerd
+  // Startpositie: midden van scherm
   requestAnimationFrame(function () {
     const bbox = svg.node().getBoundingClientRect();
 
@@ -117,5 +100,4 @@ d3.json("data.json").then(function (data) {
         .translate(bbox.width / 2, bbox.height / 2)
     );
   });
-
 });
