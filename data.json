@@ -3,7 +3,7 @@
     {
       "id": "persoon1",
       "name": "Jan Jansen",
-      "photo": "https://timbesselsen.png",
+      "photo": "./images/timbesselsen.png",
       "x": -200,
       "y": 0
     },
