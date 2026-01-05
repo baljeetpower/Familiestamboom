@@ -21,25 +21,28 @@ const zoom = d3.zoom()
 svg.call(zoom);
 
 // Data laden
-d3.json("data.json").then(data => {
+d3.json("data.json").then((data) => {
 
   // ID → persoon map
-const peopleMap = {};
-data.people.forEach(p => peopleMap[p.id] = p);
+  const peopleMap = {};
+  data.people.forEach(p => {
+    peopleMap[p.id] = p;
+  });
 
-// Lijnen
-g.selectAll(".link")
-  .data(data.links)
-  .enter()
-  .append("line")
-  .attr("class", "link")
-  .attr("x1", d => peopleMap[d.source].x)
-  .attr("y1", d => peopleMap[d.source].y)
-  .attr("x2", d => peopleMap[d.target].x)
-  .attr("y2", d => peopleMap[d.target].y)
-  .attr("stroke", "#444")
-  .attr("stroke-width", 1);
+  // Lijnen
+  g.selectAll(".link")
+    .data(data.links || [])
+    .enter()
+    .append("line")
+    .attr("class", "link")
+    .attr("x1", d => peopleMap[d.source].x)
+    .attr("y1", d => peopleMap[d.source].y)
+    .attr("x2", d => peopleMap[d.target].x)
+    .attr("y2", d => peopleMap[d.target].y)
+    .attr("stroke", "#444")
+    .attr("stroke-width", 1);
 
+  // Personen
   const person = g.selectAll(".person")
     .data(data.people)
     .enter()
@@ -61,15 +64,10 @@ g.selectAll(".link")
     .attr("font-size", "14px")
     .text(d => d.name);
 
-  // ⏱ Wacht 1 frame zodat SVG echt bestaat
+  // Start gecentreerd
   requestAnimationFrame(() => {
-  const bbox = svg.node().getBoundingClientRect();
+    const bbox = svg.node().getBoundingClientRect();
 
-  svg.call(
-    zoom.transform,
-    d3.zoomIdentity
-      .scale(1)
-      .translate(bbox.width / 2, bbox.height / 2)
-  );
-});
-});
+    svg.call(
+      zoom.transform,
+      d3.zoomId
