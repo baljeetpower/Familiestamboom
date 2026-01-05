@@ -116,3 +116,12 @@ scene.addEventListener("mouseleave", () => {
   scene.style.transform =
     "perspective(1200px) rotateX(0deg) rotateY(0deg)";
 });
+
+// TESTLIJN (tijdelijk)
+g.append("line")
+  .attr("x1", -200)
+  .attr("y1", 200)
+  .attr("x2", 200)
+  .attr("y2", 200)
+  .attr("stroke", "red")
+  .attr("stroke-width", 4);
