@@ -1,6 +1,10 @@
 // ===== BASIS SVG =====
 const svg = d3.select("#canvas");
-const g = svg.append("g");
+const root = svg.append("g");
+
+// Lagen (belangrijk!)
+const bgLayer = root.append("g"); // lijnen (achtergrond)
+const fgLayer = root.append("g"); // personen (voorgrond)
 
 // Fullscreen SVG
 function resize() {
@@ -21,16 +25,17 @@ const zoom = d3.zoom()
 
 svg.call(zoom);
 
-// ===== DARK TILT / PARALLAX VARIABELEN =====
+// ===== TILT VARIABELEN =====
 let targetX = 0;
 let targetY = 0;
 let currentX = 0;
 let currentY = 0;
 
-// hoe heftig het effect is
-const STRENGTH_X = 30; // links/rechts
-const STRENGTH_Y = 20; // omhoog/omlaag
-const EASING = 0.08;   // lager = soepeler
+const EASING = 0.08;
+
+// Hoe “diep” het effect is
+const BG_STRENGTH = 6;   // achtergrond beweegt weinig
+const FG_STRENGTH = 18;  // voorgrond beweegt veel
 
 // ===== MOUSE INPUT =====
 svg.on("mousemove", (event) => {
@@ -39,18 +44,32 @@ svg.on("mousemove", (event) => {
   const mouseX = (event.clientX - rect.width / 2) / rect.width;
   const mouseY = (event.clientY - rect.height / 2) / rect.height;
 
-  // Dark-achtige kanteling:
-  targetX = mouseX * STRENGTH_X;
-  targetY = -mouseY * STRENGTH_Y; // Y omgekeerd = kantel-gevoel
+  targetX = mouseX;
+  targetY = -mouseY; // omkeren = kantel-gevoel
 });
 
-// ===== ANIMATIE LOOP (EASING) =====
+// ===== ANIMATIE LOOP =====
 function animate() {
   currentX += (targetX - currentX) * EASING;
   currentY += (targetY - currentY) * EASING;
 
-  const combined = zoomTransform.translate(currentX, currentY);
-  g.attr("transform", combined);
+  // Achtergrond (lijkt verder weg)
+  bgLayer.attr(
+    "transform",
+    zoomTransform.translate(
+      currentX * BG_STRENGTH,
+      currentY * BG_STRENGTH
+    )
+  );
+
+  // Voorgrond (lijkt dichterbij)
+  fgLayer.attr(
+    "transform",
+    zoomTransform.translate(
+      currentX * FG_STRENGTH,
+      currentY * FG_STRENGTH
+    )
+  );
 
   requestAnimationFrame(animate);
 }
@@ -60,18 +79,14 @@ requestAnimationFrame(animate);
 // ===== DATA LADEN =====
 d3.json("data.json").then(function (data) {
 
-  // ID → persoon map
   const peopleMap = {};
-  data.people.forEach(function (p) {
-    peopleMap[p.id] = p;
-  });
+  data.people.forEach(p => peopleMap[p.id] = p);
 
-  // Lijnen
-  g.selectAll(".link")
+  // Lijnen → ACHTERGROND
+  bgLayer.selectAll(".link")
     .data(data.links || [])
     .enter()
     .append("line")
-    .attr("class", "link")
     .attr("x1", d => peopleMap[d.source].x)
     .attr("y1", d => peopleMap[d.source].y)
     .attr("x2", d => peopleMap[d.target].x)
@@ -79,15 +94,14 @@ d3.json("data.json").then(function (data) {
     .attr("stroke", "#444")
     .attr("stroke-width", 1);
 
-  // Personen
-  const person = g.selectAll(".person")
+  // Personen → VOORGROND
+  const person = fgLayer.selectAll(".person")
     .data(data.people)
     .enter()
     .append("g")
     .attr("class", "person")
     .attr("transform", d => `translate(${d.x}, ${d.y})`);
 
-  // Foto
   person.append("image")
     .attr("xlink:href", d => d.photo)
     .attr("width", 120)
@@ -95,7 +109,6 @@ d3.json("data.json").then(function (data) {
     .attr("x", -60)
     .attr("y", -60);
 
-  // Naam
   person.append("text")
     .attr("y", 90)
     .attr("text-anchor", "middle")
@@ -104,14 +117,12 @@ d3.json("data.json").then(function (data) {
     .text(d => d.name);
 
   // Start gecentreerd
-  requestAnimationFrame(function () {
+  requestAnimationFrame(() => {
     const bbox = svg.node().getBoundingClientRect();
 
     svg.call(
       zoom.transform,
-      d3.zoomIdentity
-        .scale(1)
-        .translate(bbox.width / 2, bbox.height / 2)
+      d3.zoomIdentity.translate(bbox.width / 2, bbox.height / 2)
     );
   });
 });
