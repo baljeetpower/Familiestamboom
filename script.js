@@ -3,9 +3,8 @@ const g = svg.append("g");
 
 // Zet SVG expliciet fullscreen
 function resize() {
-  svg
-    .attr("width", window.innerWidth)
-    .attr("height", window.innerHeight);
+  svg.attr("width", window.innerWidth);
+  svg.attr("height", window.innerHeight);
 }
 
 resize();
@@ -21,11 +20,11 @@ const zoom = d3.zoom()
 svg.call(zoom);
 
 // Data laden
-d3.json("data.json").then((data) => {
+d3.json("data.json").then(function (data) {
 
   // ID → persoon map
   const peopleMap = {};
-  data.people.forEach(p => {
+  data.people.forEach(function (p) {
     peopleMap[p.id] = p;
   });
 
@@ -34,11 +33,10 @@ d3.json("data.json").then((data) => {
     .data(data.links || [])
     .enter()
     .append("line")
-    .attr("class", "link")
-    .attr("x1", d => peopleMap[d.source].x)
-    .attr("y1", d => peopleMap[d.source].y)
-    .attr("x2", d => peopleMap[d.target].x)
-    .attr("y2", d => peopleMap[d.target].y)
+    .attr("x1", function (d) { return peopleMap[d.source].x; })
+    .attr("y1", function (d) { return peopleMap[d.source].y; })
+    .attr("x2", function (d) { return peopleMap[d.target].x; })
+    .attr("y2", function (d) { return peopleMap[d.target].y; })
     .attr("stroke", "#444")
     .attr("stroke-width", 1);
 
@@ -48,10 +46,12 @@ d3.json("data.json").then((data) => {
     .enter()
     .append("g")
     .attr("class", "person")
-    .attr("transform", d => `translate(${d.x}, ${d.y})`);
+    .attr("transform", function (d) {
+      return "translate(" + d.x + "," + d.y + ")";
+    });
 
   person.append("image")
-    .attr("href", d => d.photo)
+    .attr("href", function (d) { return d.photo; })
     .attr("width", 120)
     .attr("height", 120)
     .attr("x", -60)
@@ -62,10 +62,10 @@ d3.json("data.json").then((data) => {
     .attr("text-anchor", "middle")
     .attr("fill", "#e0e0e0")
     .attr("font-size", "14px")
-    .text(d => d.name);
+    .text(function (d) { return d.name; });
 
   // Start gecentreerd
-  requestAnimationFrame(() => {
+  requestAnimationFrame(function () {
     const bbox = svg.node().getBoundingClientRect();
 
     svg.call(
