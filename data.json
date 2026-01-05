@@ -4,14 +4,14 @@
       "id": "persoon1",
       "name": "Tim Besselsen",
       "photo": "./images/timbesselsen.png",
-      "x": -100,
+      "x": -200,
       "y": 0
     },
     {
       "id": "persoon2",
       "name": "Anna Jansen",
       "photo": "./images/timbesselsen.png",
-      "x": 100,
+      "x": 200,
       "y": 0
     }
   ],
