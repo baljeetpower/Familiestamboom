@@ -2,16 +2,16 @@
   "people": [
     {
       "id": "persoon1",
-      "name": "Tim Besselsen",
+      "name": "Tim",
       "photo": "./images/timbesselsen.png",
-      "x": -200,
+      "x": -250,
       "y": 0
     },
     {
       "id": "persoon2",
-      "name": "Anna Jansen",
+      "name": "Anna",
       "photo": "./images/timbesselsen.png",
-      "x": 200,
+      "x": 250,
       "y": 0
     }
   ],
