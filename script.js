@@ -1,4 +1,4 @@
-// ===== Basis SVG =====
+// ===== BASIS SVG =====
 const svg = d3.select("#canvas");
 const g = svg.append("g");
 
@@ -10,40 +10,54 @@ function resize() {
 resize();
 window.addEventListener("resize", resize);
 
-// ===== Zoom + Parallax (Dark-style) =====
+// ===== ZOOM =====
 let zoomTransform = d3.zoomIdentity;
-let parallaxX = 0;
-let parallaxY = 0;
 
-function updateTransform() {
-  const combined = zoomTransform.translate(parallaxX, parallaxY);
-  g.attr("transform", combined);
-}
-
-// Zoom
 const zoom = d3.zoom()
   .scaleExtent([0.3, 5])
   .on("zoom", (event) => {
     zoomTransform = event.transform;
-    updateTransform();
   });
 
 svg.call(zoom);
 
-// Subtiele parallax op muis
+// ===== DARK TILT / PARALLAX VARIABELEN =====
+let targetX = 0;
+let targetY = 0;
+let currentX = 0;
+let currentY = 0;
+
+// hoe heftig het effect is
+const STRENGTH_X = 30; // links/rechts
+const STRENGTH_Y = 20; // omhoog/omlaag
+const EASING = 0.08;   // lager = soepeler
+
+// ===== MOUSE INPUT =====
 svg.on("mousemove", (event) => {
   const rect = svg.node().getBoundingClientRect();
 
   const mouseX = (event.clientX - rect.width / 2) / rect.width;
   const mouseY = (event.clientY - rect.height / 2) / rect.height;
 
-  parallaxX = mouseX * 14;
-parallaxY = -mouseY * 6; // ⬅️ omgekeerd + subtieler
-
-  updateTransform();
+  // Dark-achtige kanteling:
+  targetX = mouseX * STRENGTH_X;
+  targetY = -mouseY * STRENGTH_Y; // Y omgekeerd = kantel-gevoel
 });
 
-// ===== Data laden =====
+// ===== ANIMATIE LOOP (EASING) =====
+function animate() {
+  currentX += (targetX - currentX) * EASING;
+  currentY += (targetY - currentY) * EASING;
+
+  const combined = zoomTransform.translate(currentX, currentY);
+  g.attr("transform", combined);
+
+  requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
+
+// ===== DATA LADEN =====
 d3.json("data.json").then(function (data) {
 
   // ID → persoon map
@@ -89,7 +103,7 @@ d3.json("data.json").then(function (data) {
     .attr("font-size", "14px")
     .text(d => d.name);
 
-  // Startpositie: midden van scherm
+  // Start gecentreerd
   requestAnimationFrame(function () {
     const bbox = svg.node().getBoundingClientRect();
 
