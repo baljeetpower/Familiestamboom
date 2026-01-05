@@ -37,18 +37,23 @@ svg.call(zoom);
 // ===== DATA =====
 d3.json("data.json").then(data => {
 
+  // map id → persoon
   const map = {};
-  data.people.forEach(p => map[p.id] = p);
+  data.people.forEach(p => {
+    map[p.id] = p;
+  });
 
-  /* === LIJNEN (240x360 foto) ===
-     horizontale offset: 140
-     verticale offset:   180
-  */
+  // ===== LIJNEN (240x360 foto) =====
+  // horizontale offset: 140
+  // verticale offset:   180
   g.selectAll(".link")
     .data(data.links || [])
     .enter()
     .append("line")
     .attr("class", "link")
+    .attr("stroke", "#666")
+    .attr("stroke-width", 2)
+    .attr("opacity", 0.9)
     .attr("x1", d =>
       map[d.source].x + (map[d.source].x < map[d.target].x ? 140 : -140)
     )
@@ -59,7 +64,7 @@ d3.json("data.json").then(data => {
     .attr("y2", d => map[d.target].y + 180)
     .attr("filter", "url(#glow)");
 
-  // Personen
+  // ===== PERSONEN =====
   const person = g.selectAll(".person")
     .data(data.people)
     .enter()
@@ -78,6 +83,9 @@ d3.json("data.json").then(data => {
   // Naam
   person.append("text")
     .attr("y", 210)
+    .attr("text-anchor", "middle")
+    .attr("fill", "#e0e0e0")
+    .attr("font-size", "14px")
     .text(d => d.name);
 
   // Start gecentreerd
@@ -90,15 +98,15 @@ d3.json("data.json").then(data => {
   });
 });
 
-// ===== ECHTE DARK-KANTELING (STABIEL) =====
+// ===== ECHTE DARK-KANTELING (CSS 3D CAMERA) =====
 scene.addEventListener("mousemove", (e) => {
   const rect = scene.getBoundingClientRect();
 
   const x = (e.clientX - rect.width / 2) / rect.width;
   const y = (e.clientY - rect.height / 2) / rect.height;
 
-  const rotateY = x * 14;   // links/rechts
-  const rotateX = -y * 10;  // omhoog/omlaag
+  const rotateY = x * 14;   // links / rechts
+  const rotateX = -y * 10;  // omhoog / omlaag
 
   scene.style.transform =
     `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
