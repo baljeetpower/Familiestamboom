@@ -40,17 +40,21 @@ d3.json("data.json").then(data => {
   const map = {};
   data.people.forEach(p => map[p.id] = p);
 
-  // Lijnen
-  g.selectAll(".link")
-    .data(data.links || [])
-    .enter()
-    .append("line")
-    .attr("class", "link")
-    .attr("x1", d => map[d.source].x)
-    .attr("y1", d => map[d.source].y)
-    .attr("x2", d => map[d.target].x)
-    .attr("y2", d => map[d.target].y)
-    .attr("filter", "url(#glow)");
+ // Lijnen
+g.selectAll(".link")
+  .data(data.links || [])
+  .enter()
+  .append("line")
+  .attr("class", "link")
+  .attr("x1", d =>
+    map[d.source].x + (map[d.source].x < map[d.target].x ? 140 : -140)
+  )
+  .attr("y1", d => map[d.source].y)
+  .attr("x2", d =>
+    map[d.target].x + (map[d.source].x < map[d.target].x ? -140 : 140)
+  )
+  .attr("y2", d => map[d.target].y)
+  .attr("filter", "url(#glow)");
 
   // Personen
   const person = g.selectAll(".person")
