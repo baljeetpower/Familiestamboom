@@ -4,8 +4,21 @@
       "id": "persoon1",
       "name": "Jan Jansen",
       "photo": "https://via.placeholder.com/120",
-      "x": 0,
+      "x": -200,
       "y": 0
+    },
+    {
+      "id": "persoon2",
+      "name": "Anna Jansen",
+      "photo": "https://via.placeholder.com/120",
+      "x": 200,
+      "y": 0
+    }
+  ],
+  "links": [
+    {
+      "source": "persoon1",
+      "target": "persoon2"
     }
   ]
 }
