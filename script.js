@@ -1,12 +1,6 @@
-// ===== BASIS SVG =====
 const svg = d3.select("#canvas");
-const root = svg.append("g");
 
-// Lagen (belangrijk!)
-const bgLayer = root.append("g"); // lijnen (achtergrond)
-const fgLayer = root.append("g"); // personen (voorgrond)
-
-// Fullscreen SVG
+// fullscreen
 function resize() {
   svg.attr("width", window.innerWidth);
   svg.attr("height", window.innerHeight);
@@ -14,88 +8,34 @@ function resize() {
 resize();
 window.addEventListener("resize", resize);
 
-// ===== ZOOM =====
-let zoomTransform = d3.zoomIdentity;
+// ===== ZOOM & PAN (blijft SVG) =====
+const g = svg.append("g");
 
 const zoom = d3.zoom()
   .scaleExtent([0.3, 5])
   .on("zoom", (event) => {
-    zoomTransform = event.transform;
+    g.attr("transform", event.transform);
   });
 
 svg.call(zoom);
 
-// ===== TILT VARIABELEN =====
-let targetX = 0;
-let targetY = 0;
-let currentX = 0;
-let currentY = 0;
+// ===== DATA =====
+d3.json("data.json").then(data => {
 
-const EASING = 0.08;
+  const map = {};
+  data.people.forEach(p => map[p.id] = p);
 
-// Hoe “diep” het effect is
-const BG_STRENGTH = 6;   // achtergrond beweegt weinig
-const FG_STRENGTH = 18;  // voorgrond beweegt veel
-
-// ===== MOUSE INPUT =====
-svg.on("mousemove", (event) => {
-  const rect = svg.node().getBoundingClientRect();
-
-  const mouseX = (event.clientX - rect.width / 2) / rect.width;
-  const mouseY = (event.clientY - rect.height / 2) / rect.height;
-
-  targetX = mouseX;
-  targetY = -mouseY; // omkeren = kantel-gevoel
-});
-
-// ===== ANIMATIE LOOP =====
-function animate() {
-  currentX += (targetX - currentX) * EASING;
-  currentY += (targetY - currentY) * EASING;
-
-  // Achtergrond (lijkt verder weg)
-  bgLayer.attr(
-    "transform",
-    zoomTransform.translate(
-      currentX * BG_STRENGTH,
-      currentY * BG_STRENGTH
-    )
-  );
-
-  // Voorgrond (lijkt dichterbij)
-  fgLayer.attr(
-    "transform",
-    zoomTransform.translate(
-      currentX * FG_STRENGTH,
-      currentY * FG_STRENGTH
-    )
-  );
-
-  requestAnimationFrame(animate);
-}
-
-requestAnimationFrame(animate);
-
-// ===== DATA LADEN =====
-d3.json("data.json").then(function (data) {
-
-  const peopleMap = {};
-  data.people.forEach(p => peopleMap[p.id] = p);
-
-  // Lijnen → ACHTERGROND
-  bgLayer.selectAll(".link")
+  g.selectAll("line")
     .data(data.links || [])
     .enter()
     .append("line")
-    .attr("x1", d => peopleMap[d.source].x)
-    .attr("y1", d => peopleMap[d.source].y)
-    .attr("x2", d => peopleMap[d.target].x)
-    .attr("y2", d => peopleMap[d.target].y)
-    .attr("stroke", "#444")
-    .attr("stroke-width", 1);
+    .attr("x1", d => map[d.source].x)
+    .attr("y1", d => map[d.source].y)
+    .attr("x2", d => map[d.target].x)
+    .attr("y2", d => map[d.target].y)
+    .attr("stroke", "#444");
 
-  // Personen → VOORGROND
-  const person = fgLayer.selectAll(".person")
+  const person = g.selectAll(".person")
     .data(data.people)
     .enter()
     .append("g")
@@ -113,16 +53,36 @@ d3.json("data.json").then(function (data) {
     .attr("y", 90)
     .attr("text-anchor", "middle")
     .attr("fill", "#e0e0e0")
-    .attr("font-size", "14px")
     .text(d => d.name);
 
-  // Start gecentreerd
+  // start midden
   requestAnimationFrame(() => {
-    const bbox = svg.node().getBoundingClientRect();
-
+    const r = svg.node().getBoundingClientRect();
     svg.call(
       zoom.transform,
-      d3.zoomIdentity.translate(bbox.width / 2, bbox.height / 2)
+      d3.zoomIdentity.translate(r.width / 2, r.height / 2)
     );
   });
+});
+
+// ===== ECHTE 3D TILT (DIT IS HET DARK-GEVOEL) =====
+const scene = document.getElementById("scene");
+
+scene.addEventListener("mousemove", (e) => {
+  const rect = scene.getBoundingClientRect();
+
+  const x = (e.clientX - rect.width / 2) / rect.width;
+  const y = (e.clientY - rect.height / 2) / rect.height;
+
+  const rotateY = x * 12;   // links/rechts kantelen
+  const rotateX = -y * 10;  // omhoog/omlaag kantelen
+
+  scene.style.transform = `
+    rotateX(${rotateX}deg)
+    rotateY(${rotateY}deg)
+  `;
+});
+
+scene.addEventListener("mouseleave", () => {
+  scene.style.transform = `rotateX(0deg) rotateY(0deg)`;
 });
