@@ -49,8 +49,12 @@ d3.json("data.json").then(data => {
     const bbox = svg.node().getBoundingClientRect();
 
     svg.call(
-      zoom.transform,
-d3.zoomIdentity.scale(1).translate(bbox.width / 2, bbox.height / 2)
+      svg.call(
+  zoom.transform,
+  d3.zoomIdentity
+    .scale(1)
+    .translate(bbox.width / 2, bbox.height / 2)
+);
     );
   });
 });
