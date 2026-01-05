@@ -19,6 +19,25 @@ const zoom = d3.zoom()
 
 svg.call(zoom);
 
+// Subtiele parallax (Dark-style)
+let mouseX = 0;
+let mouseY = 0;
+
+svg.on("mousemove", (event) => {
+  const rect = svg.node().getBoundingClientRect();
+
+  mouseX = (event.clientX - rect.width / 2) / rect.width;
+  mouseY = (event.clientY - rect.height / 2) / rect.height;
+
+  const parallaxX = mouseX * 10; // max 10px
+  const parallaxY = mouseY * 10;
+
+  g.attr(
+    "transform",
+    `translate(${parallaxX}, ${parallaxY})`
+  );
+});
+
 // Data laden
 d3.json("data.json").then(function (data) {
 
