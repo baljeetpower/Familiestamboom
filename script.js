@@ -1,6 +1,9 @@
 const svg = d3.select("#canvas");
 const g = svg.append("g");
 
+const width = window.innerWidth;
+const height = window.innerHeight;
+
 // Zoom & pan
 const zoom = d3.zoom()
   .scaleExtent([0.3, 5])
@@ -18,11 +21,7 @@ d3.json("data.json").then(data => {
     .enter()
     .append("g")
     .attr("class", "person")
-    .attr(
-  "transform",
-  d => `translate(${window.innerWidth / 2}, ${window.innerHeight / 2})`
-);
-
+    .attr("transform", "translate(0, 0)");
 
   // Foto
   person.append("image")
@@ -34,9 +33,15 @@ d3.json("data.json").then(data => {
 
   // Naam
   person.append("text")
-    .attr("y", 80)
+    .attr("y", 90)
     .attr("text-anchor", "middle")
     .attr("fill", "#e0e0e0")
     .attr("font-size", "14px")
     .text(d => d.name);
+
+  // 👇 STARTPOSITIE: midden van scherm
+  svg.call(
+    zoom.transform,
+    d3.zoomIdentity.translate(width / 2, height / 2)
+  );
 });
