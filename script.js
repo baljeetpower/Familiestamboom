@@ -23,6 +23,23 @@ svg.call(zoom);
 // Data laden
 d3.json("data.json").then(data => {
 
+  // ID → persoon map
+const peopleMap = {};
+data.people.forEach(p => peopleMap[p.id] = p);
+
+// Lijnen
+g.selectAll(".link")
+  .data(data.links)
+  .enter()
+  .append("line")
+  .attr("class", "link")
+  .attr("x1", d => peopleMap[d.source].x)
+  .attr("y1", d => peopleMap[d.source].y)
+  .attr("x2", d => peopleMap[d.target].x)
+  .attr("y2", d => peopleMap[d.target].y)
+  .attr("stroke", "#444")
+  .attr("stroke-width", 1);
+
   const person = g.selectAll(".person")
     .data(data.people)
     .enter()
