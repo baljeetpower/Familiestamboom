@@ -1,8 +1,15 @@
 const svg = d3.select("#canvas");
 const g = svg.append("g");
 
-const width = window.innerWidth;
-const height = window.innerHeight;
+// Zet SVG expliciet fullscreen
+function resize() {
+  svg
+    .attr("width", window.innerWidth)
+    .attr("height", window.innerHeight);
+}
+
+resize();
+window.addEventListener("resize", resize);
 
 // Zoom & pan
 const zoom = d3.zoom()
@@ -23,7 +30,6 @@ d3.json("data.json").then(data => {
     .attr("class", "person")
     .attr("transform", "translate(0, 0)");
 
-  // Foto
   person.append("image")
     .attr("href", d => d.photo)
     .attr("width", 120)
@@ -31,7 +37,6 @@ d3.json("data.json").then(data => {
     .attr("x", -60)
     .attr("y", -60);
 
-  // Naam
   person.append("text")
     .attr("y", 90)
     .attr("text-anchor", "middle")
@@ -39,9 +44,13 @@ d3.json("data.json").then(data => {
     .attr("font-size", "14px")
     .text(d => d.name);
 
-  // 👇 STARTPOSITIE: midden van scherm
-  svg.call(
-    zoom.transform,
-    d3.zoomIdentity.translate(width / 2, height / 2)
-  );
+  // ⏱ Wacht 1 frame zodat SVG echt bestaat
+  requestAnimationFrame(() => {
+    const bbox = svg.node().getBoundingClientRect();
+
+    svg.call(
+      zoom.transform,
+      d3.zoomIdentity.translate(bbox.width / 2, bbox.height / 2)
+    );
+  });
 });
