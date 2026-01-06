@@ -1,70 +1,74 @@
 const svg = document.getElementById("tree");
 
-let scale = 1;
-let translateX = 0;
-let translateY = 0;
+// huidige viewBox
+let viewBox = {
+  x: 0,
+  y: 0,
+  w: 5000,
+  h: 5000
+};
 
 let isPanning = false;
-let startX = 0;
-let startY = 0;
+let start = { x: 0, y: 0 };
 
-// ===== APPLY TRANSFORM =====
-function updateTransform() {
-  svg.style.transform =
-    `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+// ===== VIEWBOX UPDATEN =====
+function updateViewBox() {
+  svg.setAttribute(
+    "viewBox",
+    `${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`
+  );
 }
 
-// ===== ZOOM NAAR MUISPOSITIE (CORRECT) =====
+// ===== ZOOM NAAR MUISPOSITIE =====
 svg.addEventListener("wheel", (e) => {
   e.preventDefault();
 
   const rect = svg.getBoundingClientRect();
 
-  // Muispositie in scherm-coördinaten
-  const mouseX = e.clientX;
-  const mouseY = e.clientY;
+  // muispositie in SVG-coördinaten
+  const mx = viewBox.x + (e.clientX - rect.left) / rect.width * viewBox.w;
+  const my = viewBox.y + (e.clientY - rect.top) / rect.height * viewBox.h;
 
-  // SVG-positie
-  const svgX = rect.left;
-  const svgY = rect.top;
+  const zoomFactor = e.deltaY < 0 ? 0.9 : 1.1;
 
-  // Muispositie relatief aan SVG, gecorrigeerd voor transform
-  const x = (mouseX - svgX - translateX) / scale;
-  const y = (mouseY - svgY - translateY) / scale;
+  viewBox.w *= zoomFactor;
+  viewBox.h *= zoomFactor;
 
-  // Oude schaal
-  const oldScale = scale;
+  // center zoom rond muis
+  viewBox.x = mx - (mx - viewBox.x) * zoomFactor;
+  viewBox.y = my - (my - viewBox.y) * zoomFactor;
 
-  // Zoom instellingen
-  const zoomSpeed = 0.0015;
-  scale += e.deltaY * -zoomSpeed;
-  scale = Math.min(Math.max(scale, 0.2), 6);
+  // limieten (meer inzoomen toegestaan)
+  viewBox.w = Math.max(500, Math.min(viewBox.w, 8000));
+  viewBox.h = Math.max(500, Math.min(viewBox.h, 8000));
 
-  // Nieuwe translate zodat muispunt vast blijft
-  translateX = mouseX - svgX - x * scale;
-  translateY = mouseY - svgY - y * scale;
-
-  updateTransform();
+  updateViewBox();
 }, { passive: false });
 
 // ===== PAN MET MUIS =====
 svg.addEventListener("mousedown", (e) => {
   isPanning = true;
-  startX = e.clientX - translateX;
-  startY = e.clientY - translateY;
-  svg.classList.add("grabbing");
+  start.x = e.clientX;
+  start.y = e.clientY;
 });
 
 window.addEventListener("mousemove", (e) => {
   if (!isPanning) return;
 
-  translateX = e.clientX - startX;
-  translateY = e.clientY - startY;
+  const rect = svg.getBoundingClientRect();
 
-  updateTransform();
+  const dx = (e.clientX - start.x) / rect.width * viewBox.w;
+  const dy = (e.clientY - start.y) / rect.height * viewBox.h;
+
+  viewBox.x -= dx;
+  viewBox.y -= dy;
+
+  start.x = e.clientX;
+  start.y = e.clientY;
+
+  updateViewBox();
 });
 
 window.addEventListener("mouseup", () => {
   isPanning = false;
-  svg.classList.remove("grabbing");
 });
