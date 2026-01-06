@@ -30,3 +30,7 @@ svg {
   transform: scale(1.08);
   filter: brightness(1.2);
 }
+
+.persoon path {
+  fill: #e0e0e0;
+}
