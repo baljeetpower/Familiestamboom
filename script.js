@@ -117,8 +117,8 @@ scene.addEventListener("mousemove", (e) => {
   const x = (e.clientX - rect.left) / rect.width - 0.5;
   const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-  const rotateY = x * 20;     // links/rechts
-  const rotateX = -y * 16;    // boven/onder
+  const rotateY = x * 10;     // links/rechts
+  const rotateX = -y * 8;    // boven/onder
 
   scene.classList.add("tilt");
   scene.style.transform =
