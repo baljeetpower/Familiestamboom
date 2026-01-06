@@ -29,10 +29,26 @@ svg.addEventListener("wheel", (e) => {
   const mx = viewBox.x + (e.clientX - rect.left) / rect.width * viewBox.w;
   const my = viewBox.y + (e.clientY - rect.top) / rect.height * viewBox.h;
 
-  const zoomFactor = e.deltaY < 0 ? 0.9 : 1.1;
+  const zoomIn = e.deltaY < 0;
+const zoomFactor = zoomIn ? 0.9 : 1.1;
 
-  viewBox.w *= zoomFactor;
-  viewBox.h *= zoomFactor;
+// bereken nieuwe grootte
+const newW = viewBox.w * zoomFactor;
+const newH = viewBox.h * zoomFactor;
+
+// limieten
+const minW = 500;
+const maxW = 8000;
+
+// 🚫 stop als we buiten de limieten gaan
+if (newW < minW || newW > maxW) {
+  return;
+}
+
+// pas pas NU toe
+viewBox.w = newW;
+viewBox.h = newH;
+;
 
   // center zoom rond muis
   viewBox.x = mx - (mx - viewBox.x) * zoomFactor;
