@@ -1,6 +1,6 @@
 const svg = document.getElementById("tree");
 
-// huidige viewBox
+// ===== VIEWBOX =====
 let viewBox = {
   x: 0,
   y: 0,
@@ -8,10 +8,14 @@ let viewBox = {
   h: 5000
 };
 
+// ===== PAN / INERTIA =====
 let isPanning = false;
 let start = { x: 0, y: 0 };
+let velocity = { x: 0, y: 0 };
+let lastMoveTime = 0;
+let inertiaId = null;
 
-// ===== VIEWBOX UPDATEN =====
+// ===== VIEWBOX APPLY =====
 function updateViewBox() {
   svg.setAttribute(
     "viewBox",
@@ -19,59 +23,53 @@ function updateViewBox() {
   );
 }
 
-// ===== ZOOM NAAR MUISPOSITIE =====
+// ===== ZOOM (blijft hetzelfde) =====
 svg.addEventListener("wheel", (e) => {
   e.preventDefault();
 
   const rect = svg.getBoundingClientRect();
-
-  // muispositie in SVG-coördinaten
   const mx = viewBox.x + (e.clientX - rect.left) / rect.width * viewBox.w;
   const my = viewBox.y + (e.clientY - rect.top) / rect.height * viewBox.h;
 
   const zoomIn = e.deltaY < 0;
-const zoomFactor = zoomIn ? 0.9 : 1.1;
+  const zoomFactor = zoomIn ? 0.9 : 1.1;
 
-// bereken nieuwe grootte
-const newW = viewBox.w * zoomFactor;
-const newH = viewBox.h * zoomFactor;
+  const newW = viewBox.w * zoomFactor;
+  const newH = viewBox.h * zoomFactor;
 
-// limieten
-const minW = 500;
-const maxW = 8000;
+  const minW = 500;
+  const maxW = 8000;
 
-// 🚫 stop als we buiten de limieten gaan
-if (newW < minW || newW > maxW) {
-  return;
-}
+  if (newW < minW || newW > maxW) return;
 
-// pas pas NU toe
-viewBox.w = newW;
-viewBox.h = newH;
-;
+  viewBox.w = newW;
+  viewBox.h = newH;
 
-  // center zoom rond muis
   viewBox.x = mx - (mx - viewBox.x) * zoomFactor;
   viewBox.y = my - (my - viewBox.y) * zoomFactor;
-
-  // limieten (meer inzoomen toegestaan)
-  viewBox.w = Math.max(500, Math.min(viewBox.w, 8000));
-  viewBox.h = Math.max(500, Math.min(viewBox.h, 8000));
 
   updateViewBox();
 }, { passive: false });
 
-// ===== PAN MET MUIS =====
+// ===== START PAN =====
 svg.addEventListener("mousedown", (e) => {
   isPanning = true;
   start.x = e.clientX;
   start.y = e.clientY;
+  velocity.x = 0;
+  velocity.y = 0;
+  lastMoveTime = performance.now();
+
+  if (inertiaId) cancelAnimationFrame(inertiaId);
 });
 
+// ===== PAN MOVE =====
 window.addEventListener("mousemove", (e) => {
   if (!isPanning) return;
 
   const rect = svg.getBoundingClientRect();
+  const now = performance.now();
+  const dt = now - lastMoveTime || 16;
 
   const dx = (e.clientX - start.x) / rect.width * viewBox.w;
   const dy = (e.clientY - start.y) / rect.height * viewBox.h;
@@ -79,12 +77,36 @@ window.addEventListener("mousemove", (e) => {
   viewBox.x -= dx;
   viewBox.y -= dy;
 
+  velocity.x = dx / dt;
+  velocity.y = dy / dt;
+
   start.x = e.clientX;
   start.y = e.clientY;
+  lastMoveTime = now;
 
   updateViewBox();
 });
 
+// ===== END PAN → INERTIA =====
 window.addEventListener("mouseup", () => {
+  if (!isPanning) return;
   isPanning = false;
+
+  const friction = 0.95;
+
+  function inertia() {
+    velocity.x *= friction;
+    velocity.y *= friction;
+
+    viewBox.x -= velocity.x * 16;
+    viewBox.y -= velocity.y * 16;
+
+    updateViewBox();
+
+    if (Math.abs(velocity.x) > 0.001 || Math.abs(velocity.y) > 0.001) {
+      inertiaId = requestAnimationFrame(inertia);
+    }
+  }
+
+  inertia();
 });
