@@ -14,29 +14,35 @@ function updateTransform() {
     `translate(${translateX}px, ${translateY}px) scale(${scale})`;
 }
 
-// ===== ZOOM NAAR MUISPOSITIE =====
+// ===== ZOOM NAAR MUISPOSITIE (CORRECT) =====
 svg.addEventListener("wheel", (e) => {
   e.preventDefault();
 
   const rect = svg.getBoundingClientRect();
 
-  // Muispositie relatief aan SVG
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+  // Muispositie in scherm-coördinaten
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
+
+  // SVG-positie
+  const svgX = rect.left;
+  const svgY = rect.top;
+
+  // Muispositie relatief aan SVG, gecorrigeerd voor transform
+  const x = (mouseX - svgX - translateX) / scale;
+  const y = (mouseY - svgY - translateY) / scale;
 
   // Oude schaal
   const oldScale = scale;
 
-  // Zoom snelheid & limieten
+  // Zoom instellingen
   const zoomSpeed = 0.0015;
   scale += e.deltaY * -zoomSpeed;
-
-  // 🔥 Meer inzoomen toegestaan
   scale = Math.min(Math.max(scale, 0.2), 6);
 
-  // Houd muispunt op dezelfde plek
-  translateX -= (mouseX / oldScale - mouseX / scale);
-  translateY -= (mouseY / oldScale - mouseY / scale);
+  // Nieuwe translate zodat muispunt vast blijft
+  translateX = mouseX - svgX - x * scale;
+  translateY = mouseY - svgY - y * scale;
 
   updateTransform();
 }, { passive: false });
@@ -46,6 +52,7 @@ svg.addEventListener("mousedown", (e) => {
   isPanning = true;
   startX = e.clientX - translateX;
   startY = e.clientY - translateY;
+  svg.classList.add("grabbing");
 });
 
 window.addEventListener("mousemove", (e) => {
@@ -59,12 +66,5 @@ window.addEventListener("mousemove", (e) => {
 
 window.addEventListener("mouseup", () => {
   isPanning = false;
-});
-
-// ===== KLIK TEST (blijft werken) =====
-document.querySelectorAll(".persoon").forEach(p => {
-  p.addEventListener("click", (e) => {
-    e.stopPropagation();
-    alert("Klik op: " + p.id);
-  });
+  svg.classList.remove("grabbing");
 });
