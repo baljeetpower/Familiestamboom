@@ -36,6 +36,15 @@ html, body {
   perspective: 1200px;
   transition: transform 0.2s ease-out;
 }
+/* Hover effect op persoon (Dark-style, subtiel) */
+.persoon image {
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.persoon:hover image {
+  transform: scale(1.05);
+  filter: brightness(1.15);
+}
 
 #scene.tilt {
   transition: none;
