@@ -26,3 +26,15 @@ svg {
 .persoon path {
   fill: #e0e0e0;
 }
+#scene {
+  overflow: hidden;
+}
+
+#scene svg {
+  transform-origin: 0 0;
+  cursor: grab;
+}
+
+#scene svg:active {
+  cursor: grabbing;
+}
