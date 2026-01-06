@@ -48,17 +48,14 @@ html, body {
   transform: scale(1.03);
   filter: brightness(1.12);
 }
-/* standaard: alle namen normaal wit */
+
+/* standaard: naam lichtgrijs */
 .persoon .naam path {
-  transition: opacity 0.25s ease;
+  fill: #9a9a9a;
+  transition: fill 0.25s ease;
 }
 
-/* als je over één persoon hovert: andere namen dimmen */
-#personen:hover .persoon .naam path {
-  opacity: 0.35;
-}
-
-/* naam van de gehoverde persoon blijft helder wit */
-#personen:hover .persoon:hover .naam path {
-  opacity: 1;
+/* hover: naam wordt wit */
+.persoon:hover .naam path {
+  fill: #ffffff;
 }
