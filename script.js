@@ -14,14 +14,29 @@ function updateTransform() {
     `translate(${translateX}px, ${translateY}px) scale(${scale})`;
 }
 
-// ===== ZOOM MET MUISWIEL =====
+// ===== ZOOM NAAR MUISPOSITIE =====
 svg.addEventListener("wheel", (e) => {
   e.preventDefault();
 
-  const zoomSpeed = 0.001;
+  const rect = svg.getBoundingClientRect();
+
+  // Muispositie relatief aan SVG
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  // Oude schaal
+  const oldScale = scale;
+
+  // Zoom snelheid & limieten
+  const zoomSpeed = 0.0015;
   scale += e.deltaY * -zoomSpeed;
 
-  scale = Math.min(Math.max(scale, 0.3), 3);
+  // 🔥 Meer inzoomen toegestaan
+  scale = Math.min(Math.max(scale, 0.2), 6);
+
+  // Houd muispunt op dezelfde plek
+  translateX -= (mouseX / oldScale - mouseX / scale);
+  translateY -= (mouseY / oldScale - mouseY / scale);
 
   updateTransform();
 }, { passive: false });
