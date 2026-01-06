@@ -51,7 +51,7 @@ html, body {
 
 /* standaard: naam lichtgrijs */
 .persoon .naam path {
-  fill: #9a9a9a;
+  fill: #cecece;
   transition: fill 0.25s ease;
 }
 
