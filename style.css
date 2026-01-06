@@ -41,7 +41,7 @@ html, body {
 .persoon image {
   transform-box: fill-box;
   transform-origin: center;
-  transition: transform 0.25s ease, filter 0.25s ease;
+  transition: transform 0.25s ease, filter 0.35s ease;
 }
 
 .persoon:hover image {
