@@ -1,4 +1,5 @@
 const svg = document.getElementById("tree");
+const scene = document.getElementById("scene");
 
 // ===== VIEWBOX =====
 let viewBox = {
@@ -23,7 +24,7 @@ function updateViewBox() {
   );
 }
 
-// ===== ZOOM (blijft hetzelfde) =====
+// ===== ZOOM NAAR MUIS =====
 svg.addEventListener("wheel", (e) => {
   e.preventDefault();
 
@@ -35,15 +36,13 @@ svg.addEventListener("wheel", (e) => {
   const zoomFactor = zoomIn ? 0.9 : 1.1;
 
   const newW = viewBox.w * zoomFactor;
-  const newH = viewBox.h * zoomFactor;
-
   const minW = 500;
   const maxW = 8000;
 
   if (newW < minW || newW > maxW) return;
 
   viewBox.w = newW;
-  viewBox.h = newH;
+  viewBox.h *= zoomFactor;
 
   viewBox.x = mx - (mx - viewBox.x) * zoomFactor;
   viewBox.y = my - (my - viewBox.y) * zoomFactor;
@@ -109,4 +108,24 @@ window.addEventListener("mouseup", () => {
   }
 
   inertia();
+});
+
+// ===== 3D KANTEL EFFECT (DARK-STYLE) =====
+scene.addEventListener("mousemove", (e) => {
+  const rect = scene.getBoundingClientRect();
+
+  const x = (e.clientX - rect.left) / rect.width - 0.5;
+  const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+  const rotateY = x * 14;     // links/rechts
+  const rotateX = -y * 10;    // boven/onder
+
+  scene.classList.add("tilt");
+  scene.style.transform =
+    `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+});
+
+scene.addEventListener("mouseleave", () => {
+  scene.classList.remove("tilt");
+  scene.style.transform = "rotateX(0deg) rotateY(0deg)";
 });
