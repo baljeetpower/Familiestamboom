@@ -114,8 +114,8 @@ window.addEventListener("mouseup", () => {
 scene.addEventListener("mousemove", (e) => {
   const rect = scene.getBoundingClientRect();
 
-  const x = (e.clientX - rect.left) / rect.width - 0.5;
-  const y = (e.clientY - rect.top) / rect.height - 0.5;
+  const x = (e.clientX - rect.left) / rect.width - 0.3;
+  const y = (e.clientY - rect.top) / rect.height - 0.3;
 
   const rotateY = x * 12;     // links/rechts
   const rotateX = -y * 8;    // boven/onder
