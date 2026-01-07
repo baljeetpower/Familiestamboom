@@ -33,7 +33,7 @@ svg.addEventListener("wheel", (e) => {
   const my = viewBox.y + (e.clientY - rect.top) / rect.height * viewBox.h;
 
   const zoomIn = e.deltaY < 0;
-  const zoomFactor = zoomIn ? 0.9 : 1.1;
+  const zoomFactor = zoomIn ? 0.9 : 1.04;
 
   const newW = viewBox.w * zoomFactor;
   const minW = 500;
